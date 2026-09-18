@@ -106,23 +106,23 @@ mod impl_docs {
     //!     fn call(self: Box<Self>) {}
     //! }
     //! #fn foo() {
-    //! let _: fn(Box<Foo>) = <Bar as Foo>::call;
+    //! let _: fn(Box<Bar>) = <Bar as Foo>::call;
     //! //  ^~~ the vtable stores this function pointer?
     //! let _: fn(Box<dyn Foo>) = <dyn Foo as Foo>::call;
     //! //  ^~~ this is implemented by the compiler
     //! #}
     //! ```
     //!
-    //! "Unwrapping" from a `Box<dyn Foo>` to a `Box<Foo>` is done by the compiler.
+    //! "Unwrapping" from a `Box<dyn Foo>` to a `Box<Bar>` is done by the compiler.
     //! Right now, I believe this is done in a context where the specific receiver type
-    //! is not know. This roughly looks like
+    //! is not statically know. This roughly looks like
     //! ```ignore
     //! impl Foo for dyn Foo {
-    //!     fn call(self: Box<dyn Self>) {
-    //!         // Box<dyn Self>: DispatchFromDyn<_> is the magic that guarantees that we
+    //!     fn call(self: Box<Self>) {
+    //!         // Box<Self>: DispatchFromDyn<_> is the magic that guarantees that we
     //!         // can do the following:
     //!         let (thin, vtable) = DispatchFromDyn::to_raw_parts(self);
-    //!         type ThinBox = <Box<dyn Self> as DispatchFromDyn<_>>::Thin;
+    //!         type ThinBox = <Box<Self> as DispatchFromDyn<_>>::Thin;
     //!         let call: fn(ThinBox) = self.vtable.call;
     //!         call(thin)
     //!     }
